@@ -5,14 +5,29 @@
 % global Params
 % Params = struct();
 
+% % Initialize 
+% v_sups = zeros(7,1);
+% steady_states = NaN(7,2);
+% for v_sup_exp = -8:-2
+%     v_sup_val = 10^(v_sup_exp);
+%     v_sups(v_sup_exp+9,1) = v_sup_val;
+% 
+%     ss = simulate_selvaggio(v_sup_val);
+%     steady_states(v_sup_exp+9,:) = ss;
+% end
+
 % Initialize 
-v_sups = zeros(16,1);
-for v_sup_exp = -5:10
-    v_sup_val = exp(v_sup_exp);
-%     Params.v_sup = v_sup_val;
-%     selvaggio_model.m
-    v_sups(v_sup_exp+6,1) = v_sup_val;
+v_sups = zeros(61,1);
+steady_states = NaN(61,3);
+for i = 1:61
+    v_sup_exp = -8+0.1*(i-1);
+    v_sup_val = 10^(v_sup_exp);
+    v_sups(i,1) = v_sup_val;
+
+    ss = simulate_selvaggio(v_sup_val);
+    steady_states(i,:) = ss;
 end
+
 
 %% v_sup UB for TTPU: 
 % a = Params.k_Cond*Params.PrxTotal;
@@ -27,3 +42,22 @@ end
 % default param values I'm getting UB = 3.7e186 which seems unrealisitcally
 % high?
 
+
+%% Plot
+figure
+loglog(v_sups, steady_states(:,1), 'o')
+title("PrxS Steady State versus v_{sup}")
+ylim([10^-7 1])
+xlim([10^-8 10^-2])
+
+figure
+loglog(v_sups, steady_states(:,2), 'o')
+title("PrxSO Steady State versus v_{sup}")
+ylim([10^-7 1])
+xlim([10^-8 10^-2])
+
+figure
+loglog(v_sups, steady_states(:,3), 'o')
+title("PrxSO2 Steady State versus v_{sup}")
+ylim([10^-7 1])
+xlim([10^-8 10^-2])
