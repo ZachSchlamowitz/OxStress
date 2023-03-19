@@ -1,8 +1,8 @@
 % selvaggio_model_2spec.m
 
-% This is an implementation of the Selvaggio (2018) PRX system ODE model
-% from their supplement that additionally models two species of PRX and
-% accounts for permeability
+% This is a modified implementation of the Selvaggio (2018) PRX system ODE model
+% from their supplement that additionally models two species of PRX (but
+% does not account for permeability)
 
 %% Params, Commands, Etc.
 

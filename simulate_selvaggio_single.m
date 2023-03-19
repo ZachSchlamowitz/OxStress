@@ -1,9 +1,9 @@
 %% simulate_selvaggio_single.m
 % Author: Zach Schlamowitz, 2/14/2023
 
+% This script runs the selvaggio model for one set of parameters 
+
 %% Model
-% This function gets the steady state values of PrxS and PrxSO from a
-% simulation of the selvaggio ODE model with H2O2 supply rate v_sup
 
 % Setup
 global Params
@@ -15,11 +15,12 @@ Params.k_Srx = 3.3e-3; % (sec^-1) (converted from 3.3 10^-3 sec^-1)
 
 Params.k_Sulf = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
 Params.k_Sulf_I = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
-Params.k_Sulf_II = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
+% Params.k_Sulf_II = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
+Params.k_Sulf_II = 2*Params.k_Sulf_I;
 
 Params.k_Cond = 6.4; % (sec^-1) default: 6.4
-Params.k_Cond_I = 6.4; % (sec^-1) default: 6.4
-Params.k_Cond_II = 6.4; % (sec^-1) default: 6.4
+Params.k_Cond_I = 6.4; % (sec^-1) default: ??
+Params.k_Cond_II = 6.4; % (sec^-1) default: ??
 
 Params.k_Red = 0.21; % (µM^-1 sec^-1) (converted from 2.1e5 M^-1 sec^-1)
 Params.VAppMax = 230; % (µM/sec) (converted from 0.23 mM/sec) NOTE that is reported as VMax in Table 2; presumably interchangeable?
@@ -53,3 +54,21 @@ temp(10,:) = Params.PrxTotal - temp(2,:) - temp(3,:) - temp(4,:);
 % and similarly we back out TrxSH from total TrxTotal = TrxSH + TrxSS.
 temp(11,:) = Params.TrxTotal - temp(5,:);
 sol = temp';
+
+%% Plotting
+
+% Time Series Plot
+plot(time, sol, LineWidth=2)
+title('Species Concentrations Over Time')
+xlabel('t')
+ylabel('Species')
+legend('H2O2', 'PrxI-SO', 'PrxI-SO2', 'PrxI-SS', 'PrxII-SO', 'PrxII-SO2', 'PrxII-SS', 'TrxSS', '-', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',14 )
+
+figure
+
+beginning = ceil(.75*length(time));
+plot(time(1:beginning), sol(1:beginning, :), LineWidth=2)
+title('Beginning of Species Concentrations Over Time')
+xlabel('t')
+% ylabel('Population')
+legend('H2O2', 'PrxI-SO', 'PrxI-SO2', 'PrxI-SS', 'PrxII-SO', 'PrxII-SO2', 'PrxII-SS', 'TrxSS', '-', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',14 )
