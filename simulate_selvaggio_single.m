@@ -40,7 +40,8 @@ t0 = 0;
 tf = 5000; % seconds?
 % initvals = [1; 23; 23; 23; 11.5]; % For rough initial guess, start with 1µM H202 and divide the total Prx and Trx values equally across states; [PrxX] = 92/4 = 23. [TrxX] = 23/2 = 11.5
 initvals = [1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1];
-%opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
+
+%opts = odeset('RelTol',1e-3, 'AbsTol',1e-6, 'InitialStep',0.1, 'MaxStep',0.1);
 
 tic
 [time, sol] = ode23s(@selvaggio_model_2spec, [t0 tf], initvals);%, opts);
