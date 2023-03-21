@@ -62,7 +62,7 @@ plot(time, sol, LineWidth=2)
 title('Species Concentrations Over Time')
 xlabel('t')
 ylabel('Species')
-legend('H2O2', 'PrxI-SO', 'PrxI-SO2', 'PrxI-SS', 'PrxII-SO', 'PrxII-SO2', 'PrxII-SS', 'TrxSS', '-', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',14 )
+legend('H2O2', 'PrxI-SO', 'PrxI-SO2', 'PrxI-SS', 'PrxII-SO', 'PrxII-SO2', 'PrxII-SS', 'TrxSS', '-', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',12 )
 
 figure
 
@@ -71,4 +71,4 @@ plot(time(1:beginning), sol(1:beginning, :), LineWidth=2)
 title('Beginning of Species Concentrations Over Time')
 xlabel('t')
 % ylabel('Population')
-legend('H2O2', 'PrxI-SO', 'PrxI-SO2', 'PrxI-SS', 'PrxII-SO', 'PrxII-SO2', 'PrxII-SS', 'TrxSS', '-', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',14 )
+legend('H2O2', 'PrxI-SO', 'PrxI-SO2', 'PrxI-SS', 'PrxII-SO', 'PrxII-SO2', 'PrxII-SS', 'TrxSS', '-', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',12 )

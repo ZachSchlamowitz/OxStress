@@ -24,7 +24,7 @@ for i = 1:61
     v_sup_val = 10^(v_sup_exp);
     v_sups(i,1) = v_sup_val;
 
-    ss = simulate_selvaggio(v_sup_val);
+    ss = simulate_selvaggio(NaN, v_sup_val);
     steady_states(i,:) = ss;
 end
 

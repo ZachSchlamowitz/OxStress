@@ -2,15 +2,18 @@
 % Author: Zach Schlamowitz, 2/14/2023
 
 %% Model
-function [steady_states] = simulate_selvaggio(v_sup)
+function [steady_states] = simulate_selvaggio(intra_h2o2, v_sup)
 % This function gets the steady state values of PrxS and PrxSO from a
 % simulation of the selvaggio ODE model with H2O2 supply rate v_sup
 
 % Setup
 global Params
 Params = struct();
-Params.v_sup = v_sup * 10^6; % v_sup is in M/sec so convert to µM/sec
-% Params.v_sup = 10^(-5+6); % (µM/sec) (converted from M/sec) ranges 10^-7 to 10^-3 in Fig 3, based on varying levels of extracellular H202
+if isnan(v_sup)
+    Params.v_sup = 10^(-5+6); % (µM/sec) (converted from M/sec) ranges 10^-7 to 10^-3 in Fig 3, based on varying levels of extracellular H202
+else
+    Params.v_sup = v_sup * 10^6; % v_sup is in M/sec so convert to µM/sec
+end
 Params.k_Alt = 79; % (sec^-1) default: 79
 Params.k_Ox = 40; % (µM^-1 sec^-1) (converted from 4e7 M^-1 sec^-1)
 Params.k_Sulf = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
@@ -25,8 +28,16 @@ Params.TrxTotal = 23; % total concentration?? FLAG of Trx (µM)
 % Run model
 t0 = 0;
 tf = 5000; % seconds?
-% initvals = [1; 23; 23; 23; 11.5]; % For rough initial guess, start with 1µM H202 and divide the total Prx and Trx values equally across states; [PrxX] = 92/4 = 23. [TrxX] = 23/2 = 11.5
-initvals = [1; 0.1; 0.1; 0.1; 0.1];
+
+if isnan(intra_h2o2)
+    init_h2o2 = 1;
+else
+    init_h2o2 = intra_h2o2;
+end
+
+% vars = [(1)H2O2, (2)PrxSO, (3)PrxSO2, (4)PrxSS, (5)TrxSS]
+initvals = [init_h2o2; 0.01; 0.001; 0.01; 0.01]; % init values for PRDXs and TRXs are per Armindo's suggestions
+
 %opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
 
 tic
@@ -42,9 +53,16 @@ temp(6,:) = Params.PrxTotal - temp(2,:) - temp(3,:) - temp(4,:);
 temp(7,:) = Params.TrxTotal - temp(5,:);
 sol = temp';
 
+% Identify index where time reaches 5 min = 300 secs
+idx = 1;
+while time(idx,1) < 300
+    idx = idx+1;
+end
+
 % Pull steady-state values of desired species
 steady_states = NaN(1,2);
 steady_states(1,1) = sol(end,6)/Params.PrxTotal; % PrxS
 steady_states(1,2) = sol(end,2)/Params.PrxTotal; % PrxSO
 steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
+steady_states(1,4) = sol(idx,4)/Params.PrxTotal; % PrxSS
 end
