@@ -14,21 +14,20 @@ Params.k_Ox = 40; % (µM^-1 sec^-1) (converted from 4e7 M^-1 sec^-1)
 Params.k_Srx = 3.3e-3; % (sec^-1) (converted from 3.3 10^-3 sec^-1)
 
 Params.k_Sulf = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
-Params.k_Sulf_I = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
-% Params.k_Sulf_II = 5.1e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
-Params.k_Sulf_II = 2*Params.k_Sulf_I;
+Params.k_Sulf_I = 1.5e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
+Params.k_Sulf_II = 3.4e-3; % (µM^-1 sec^-1) (converted from 5.1e3 M^-1 sec^-1)
 
 Params.k_Cond = 6.4; % (sec^-1) default: 6.4
-Params.k_Cond_I = 6.4; % (sec^-1) default: ??
-Params.k_Cond_II = 6.4; % (sec^-1) default: ??
+Params.k_Cond_I = 11; % (sec^-1) default: 11 [see Armindo's email with cite]
+Params.k_Cond_II = 0.5; % (sec^-1) default: 0.5 [see Armindo's email with cite]
 
 Params.k_Red = 0.21; % (µM^-1 sec^-1) (converted from 2.1e5 M^-1 sec^-1)
 Params.VAppMax = 230; % (µM/sec) (converted from 0.23 mM/sec) NOTE that is reported as VMax in Table 2; presumably interchangeable?
 Params.K_M = 1.8; % (µM)
 Params.PrxTotal = 92; % total concentration?? FLAG of Prx (µM)
-Params.TrxTotal = 23; % total concentration?? FLAG of Trx (µM)
-Params.PrxITotal = 59; % total concentration of PrxI (µM) from Supplement Table 6
-Params.PrxIITotal = 33; % total concentration of PrxII (µM) from Supplement Table 6
+Params.TrxTotal = 20; % total concentration?? FLAG of Trx (µM) (source: Armindo's email)
+Params.PrxITotal = 110; % total concentration of PrxI (µM) updated: was from Supplement Table 6, now from Armindo's email
+Params.PrxIITotal = 30; % total concentration of PrxII (µM) updated: was from Supplement Table 6, now from Armindo's email
 Params.n_cells = 1000; %?
 Params.kappa = 1; %?
 Params.S = 1; %?
@@ -39,7 +38,8 @@ Params.V_cytoplasm = 1e-8; %? µL guess based on average MCF7 cell vol of 10000 
 t0 = 0;
 tf = 5000; % seconds?
 % initvals = [1; 23; 23; 23; 11.5]; % For rough initial guess, start with 1µM H202 and divide the total Prx and Trx values equally across states; [PrxX] = 92/4 = 23. [TrxX] = 23/2 = 11.5
-initvals = [1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1; 0.1];
+initvals = [10; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
+% vars = [(1)H2O2, (2)PrxISO, (3)PrxISO2, (4)PrxISS, (5)PrxIISO, (6)PrxIISO2, (7)PrxIISS, (8)TrxSS]
 
 %opts = odeset('RelTol',1e-3, 'AbsTol',1e-6, 'InitialStep',0.1, 'MaxStep',0.1);
 
