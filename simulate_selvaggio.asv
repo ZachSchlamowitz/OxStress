@@ -2,7 +2,7 @@
 % Author: Zach Schlamowitz, 2/14/2023
 
 %% Model
-function [steady_states] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type)
+function [steady_states] = simulate_selvaggio(intra_h2o2, v_sup, cell_type)
 % This function gets the steady state values of PrxS and PrxSO from a
 % simulation of the selvaggio ODE model with H2O2 supply rate v_sup
 
@@ -77,13 +77,12 @@ elseif cell_type == 'MCF7'
     Params.V_cytoplasm = 1760; %? µm^3 based on MCF7 cell vol of 1.76pL from https://bionumbers.hms.harvard.edu/bionumber.aspx?id=115154&ver=1
 
 end
-
 % Run model
 t0 = 0;
-tf = 5000; % seconds
+tf = 5000; % seconds?
 
 if isnan(intra_h2o2)
-    init_h2o2 = 0.01; % default: 0.1 uM [drawn from Fig. 4 of https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5256672/]
+    init_h2o2 = 1;
 else
     init_h2o2 = intra_h2o2;
 end
@@ -94,8 +93,7 @@ initvals = [init_h2o2; 0.01; 0.001; 0.01; 0.01]; % init values for PRDXs and TRX
 initvals = [init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 %opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
 
-initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
-% vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
+initvals = [init_h2o2; 0.01; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 
 
 tic
@@ -120,13 +118,10 @@ while time(idx,1) < 300
 end
 idx
 
-% hold on
-% plot(time,sol(:,8))
-
 % Pull steady-state values of desired species
 % steady_states = NaN(1,2);
 % steady_states(1,1) = sol(end,6)/Params.PrxTotal; % PrxS
 % steady_states(1,2) = sol(end,2)/Params.PrxTotal; % PrxSO
 % steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
-steady_states = sol(idx,8)/Params.PrxIITotal; % PrxIISS
+steady_states = sol(idx,7)/Params.PrxIITotal; % PrxIISS
 end

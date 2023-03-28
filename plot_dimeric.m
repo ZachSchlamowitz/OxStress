@@ -11,7 +11,7 @@ for i = 1:size(boluses,1)
     bolus = boluses(i);
     intracellular_val = 0.01*bolus; % intracellular is ~1% of bolus concentration
     
-    ss = simulate_selvaggio(intracellular_val, NaN, 'HEK293');
+    ss = simulate_selvaggio(bolus, intracellular_val, NaN, 'HEK293');
     dimeric_levels(i,:) = ss;
 end
 
