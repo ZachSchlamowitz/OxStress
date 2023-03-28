@@ -113,20 +113,39 @@ temp(10,:) = Params.PrxIITotal - temp(5,:) - temp(6,:) - temp(7,:); % PRX1-S
 temp(11,:) = Params.TrxTotal - temp(8,:);
 sol = temp';
 
-% Identify index where time reaches 5 min = 300 secs
-idx = 1;
-while time(idx,1) < 300
-    idx = idx+1;
+% Initialize output matrix
+steady_states = NaN(9,3); % *note that depending on the application this may or may not actually houes steady states
+
+timepoints = [60 300 600];
+for ii = 1:size(timepoints,2)
+    % Display timepoint 
+%     timepoints(1,ii)
+
+    % Identify index where time reaches 5 min = 300 secs
+    idx = 1;
+    while time(idx,1) < timepoints(1,ii)
+        idx = idx+1;
+    end
+%     idx % display index for current run
+    
+    % hold on
+    % plot(time,sol(:,8))
+    
+    % Pull desired steady-state* values of all species as fracs of total
+    steady_states(1,ii) = sol(idx,1)' ./ bolus;
+    steady_states(2,ii) = sol(idx,2)' ./ init_h2o2;
+    steady_states(3:5,ii) = sol(idx,3:5)' ./ Params.PrxITotal;
+    steady_states(6:8,ii) = sol(idx,6:8)' ./ Params.PrxIITotal;
+    steady_states(9,ii) = sol(idx,9)' ./ Params.TrxTotal;
+% vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
+
+    
+%     
+%     steady_states(1,1) = sol(end,6)/Params.PrxTotal; % PrxS
+%     steady_states(1,2) = sol(end,2)/Params.PrxTotal; % PrxSO
+%     steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
+%     steady_states = sol(idx,8)/Params.PrxIITotal; % PrxIISS
 end
-idx
 
-% hold on
-% plot(time,sol(:,8))
 
-% Pull steady-state values of desired species
-% steady_states = NaN(1,2);
-% steady_states(1,1) = sol(end,6)/Params.PrxTotal; % PrxS
-% steady_states(1,2) = sol(end,2)/Params.PrxTotal; % PrxSO
-% steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
-steady_states = sol(idx,8)/Params.PrxIITotal; % PrxIISS
 end
