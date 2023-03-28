@@ -42,11 +42,11 @@ if cell_type == 'HEK293'
     % Permeation Parameters (various sources)
     Params.n_cells = 3e5; % number of cells in media/plate; default: 3e5 cells per well from Sobotta et al 2013
     Params.kappa = 15; % permeability coefficient (µm/sec) in erythrocytes (source: 3/2023 meeting with Armindo)
-    Params.V_medium = 2e11; % volume of media (µm^3) default: 2e11; converted to µm^3 from 200 µL (source: guess from Andrew)
-    Params.V_cytoplasm = 1150; % volume of cell (µm^3); default: 660 from Supplement 3.2.3, although this may come from Jurkat T cells, which are smaller; alternatively, guess 1150 based on average HEK293 cell diameter of 13 µm (source: https://bionumbers.hms.harvard.edu/bionumber.aspx?id=108893&ver=3&trm=HEK+293&org= among others)
+    Params.V_medium = 2e13; % volume of media (µm^3) default: 2e11; converted to µm^3 from 200 µL (source: guess from Andrew)
+    Params.V_cytoplasm = 660; % volume of cell (µm^3); default: 660 from Supplement 3.2.3, although this may come from Jurkat T cells, which are smaller; alternatively, guess 1150 based on average HEK293 cell diameter of 13 µm (source: https://bionumbers.hms.harvard.edu/bionumber.aspx?id=108893&ver=3&trm=HEK+293&org= among others)
     Params.S = 530; % surface area of cell (µm^2) guess based on average HEK293 cell diameter of 13 µm (see above)
 
-elseif cell_type == 'MCF7'
+elseif cell_type == 'MCF7  '
     % From Table 2
     Params.k_Alt = 79; % (sec^-1) default: 79
     Params.k_Ox = 40; % (µM^-1 sec^-1) (converted from 4e7 M^-1 sec^-1)
@@ -72,7 +72,7 @@ elseif cell_type == 'MCF7'
     % Permeation Parameters (various sources)
     Params.n_cells = 6000; % default: 6000 source: guess by Andrew
     Params.kappa = 15; % permeability coefficient (µm/sec) in erythrocytes (source: 3/2023 meeting with Armindo)
-    Params.S = NaN; % surface area of cell (µm^2)
+    Params.S = 1224.18; % surface area of cell (µm^2) guessed value based on SA of sphere of diamter 19.74 µm, https://www.researchgate.net/figure/Size-distribution-of-MCF-7-cells-used-in-this-study-The-histogram-was-derived-using-an_fig5_257966698
     Params.V_medium = 2e11; %? default: 2e11 µm^3; converted to µm^3 from 200 µL (source: guess from Andrew)
     Params.V_cytoplasm = 1760; %? µm^3 based on MCF7 cell vol of 1.76pL from https://bionumbers.hms.harvard.edu/bionumber.aspx?id=115154&ver=1
 
@@ -135,7 +135,7 @@ for ii = 1:size(timepoints,2)
     steady_states(1,ii) = sol(idx,1)' ./ bolus;
     steady_states(2,ii) = sol(idx,2)' ./ init_h2o2;
     steady_states(3:5,ii) = sol(idx,3:5)' ./ Params.PrxITotal;
-    steady_states(6:8,ii) = sol(idx,6:8)' ./ Params.PrxIITotal;
+    steady_states(6:8,ii) = sol(idx,6:8)'./ Params.PrxIITotal;
     steady_states(9,ii) = sol(idx,9)' ./ Params.TrxTotal;
 % vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
 
@@ -146,6 +146,14 @@ for ii = 1:size(timepoints,2)
 %     steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
 %     steady_states = sol(idx,8)/Params.PrxIITotal; % PrxIISS
 end
+
+% Plot timecourse of PRXI/II SO2 at current bolus
+figure
+PRXII_frac = sol(:,8)./Params.PrxIITotal;
+PRXI_frac = sol(:,5)./Params.PrxITotal;
+plot(time, PRXII_frac,'-',LineWidth=1)
+hold on
+plot(time, PRXI_frac,'--',LineWidth=1)
 
 
 end
