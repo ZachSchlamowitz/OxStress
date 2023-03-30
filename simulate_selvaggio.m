@@ -40,10 +40,10 @@ if cell_type == 'HEK293'
     Params.PrxIITotal = 32; % total concentration of PrxII (µM)
 
     % Permeation Parameters (various sources)
-    Params.n_cells = 3e5; % number of cells in media/plate; default: 3e5 cells per well from Sobotta et al 2013
+    Params.n_cells = 3e5; % number of cells in media / well of plate; default: 3e5 cells per well from Sobotta et al 2013
     Params.kappa = 15; % permeability coefficient (µm/sec) in erythrocytes (source: 3/2023 meeting with Armindo)
-    Params.V_medium = 2e13; % volume of media (µm^3) default: 2e11; converted to µm^3 from 200 µL (source: guess from Andrew)
-    Params.V_cytoplasm = 660; % volume of cell (µm^3); default: 660 from Supplement 3.2.3, although this may come from Jurkat T cells, which are smaller; alternatively, guess 1150 based on average HEK293 cell diameter of 13 µm (source: https://bionumbers.hms.harvard.edu/bionumber.aspx?id=108893&ver=3&trm=HEK+293&org= among others)
+    Params.V_medium = 2e11; % volume of media (µm^3) default: 2e11; converted to µm^3 from 200 µL (source: guess from Andrew)
+    Params.V_cytoplasm = 1150; % volume of cell (µm^3); default: 660 from Supplement 3.2.3, although this may come from Jurkat T cells, which are smaller; alternatively, guess 1150 based on average HEK293 cell diameter of 13 µm (source: https://bionumbers.hms.harvard.edu/bionumber.aspx?id=108893&ver=3&trm=HEK+293&org= among others)
     Params.S = 530; % surface area of cell (µm^2) guess based on average HEK293 cell diameter of 13 µm (see above)
 
 elseif cell_type == 'MCF7  '
@@ -148,12 +148,12 @@ for ii = 1:size(timepoints,2)
 end
 
 % Plot timecourse of PRXI/II SO2 at current bolus
-figure
-PRXII_frac = sol(:,8)./Params.PrxIITotal;
-PRXI_frac = sol(:,5)./Params.PrxITotal;
-plot(time, PRXII_frac,'-',LineWidth=1)
-hold on
-plot(time, PRXI_frac,'--',LineWidth=1)
+% figure
+% PRXII_frac = sol(:,8)./Params.PrxIITotal;
+% PRXI_frac = sol(:,5)./Params.PrxITotal;
+% plot(time, PRXII_frac,'-',LineWidth=1)
+% hold on
+% plot(time, PRXI_frac,'--',LineWidth=1)
 
 
 end
