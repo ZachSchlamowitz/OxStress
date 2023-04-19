@@ -2,7 +2,7 @@
 % Author: Zach Schlamowitz, 2/14/2023
 
 %% Model
-function [steady_states] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type)
+function [steady_states, heatmap_vals] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type)
 % This function gets the steady state values of PrxS and PrxSO from a
 % simulation of the selvaggio ODE model with H2O2 supply rate v_sup
 
@@ -82,6 +82,8 @@ end
 t0 = 0;
 tf = 5000; % seconds
 
+tspan = [0:1:5000];
+
 if isnan(intra_h2o2)
     init_h2o2 = 0.01; % default: 0.1 uM [drawn from Fig. 4 of https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5256672/]
 else
@@ -99,7 +101,7 @@ initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 
 
 tic
-[time, sol] = ode23s(@selvaggio_model_2spec_perm, [t0 tf], initvals);%, opts);
+[time, sol] = ode23s(@selvaggio_model_2spec_perm, tspan, initvals);%, opts);
 toc
 
 % Obtain Trx-SH and Prx-S time courses; add as columns to sol
@@ -155,5 +157,13 @@ end
 % hold on
 % plot(time, PRXI_frac,'--',LineWidth=1)
 
+% Compute percent hyperoxidation
+prct_PrxIISOO = sol(:,7) ./ Params.PrxIITotal;
+prct_PrxISOO  = sol(:,4) ./ Params.PrxITotal;
+
+% Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
+prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
+prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
+heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISOO, prct_PrxISOO, prxI_over_prxSum];
 
 end
