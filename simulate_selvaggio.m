@@ -82,23 +82,26 @@ end
 t0 = 0;
 tf = 5000; % seconds
 
-tspan = [0:1:5000];
+tspan = [0:1:5000]; % can specify specific timepoints for eval or just give start and end of time range and let solver choose
 
 if isnan(intra_h2o2)
-    init_h2o2 = 0.01; % default: 0.1 uM [drawn from Fig. 4 of https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5256672/]
+    init_h2o2 = 0.01; % default: 0.01 uM [drawn from Fig. 4 of https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5256672/]
 else
     init_h2o2 = intra_h2o2;
 end
 
+% FOR ONE-PRX MODEL
 % vars = [(1)H2O2, (2)PrxSO, (3)PrxSO2, (4)PrxSS, (5)TrxSS]
-initvals = [init_h2o2; 0.01; 0.001; 0.01; 0.01]; % init values for PRDXs and TRXs are per Armindo's suggestions
-% vars = [(1)H2O2, (2)PrxISO, (3)PrxISO2, (4)PrxISS, (5)PrxIISO, (6)PrxIISO2, (7)PrxIISS, (8)TrxSS]
-initvals = [init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
-%opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
+% initvals = [init_h2o2; 0.01; 0.001; 0.01; 0.01]; % init values for PRDXs and TRXs are per Armindo's suggestions
 
+% FOR TWO-PRX MODEL W/O PERMEATION
+% vars = [(1)H2O2, (2)PrxISO, (3)PrxISO2, (4)PrxISS, (5)PrxIISO, (6)PrxIISO2, (7)PrxIISS, (8)TrxSS]
+% initvals = [init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
+
+% FOR TWO-PRX MODEL WITH PERMEATION
 initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 % vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
-
+%opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
 
 tic
 [time, sol] = ode23s(@selvaggio_model_2spec_perm, tspan, initvals);%, opts);
@@ -115,15 +118,18 @@ temp(10,:) = Params.PrxIITotal - temp(5,:) - temp(6,:) - temp(7,:); % PRX1-S
 temp(11,:) = Params.TrxTotal - temp(8,:);
 sol = temp';
 
-% Initialize output matrix
+% Initialize output matrix 
 steady_states = NaN(9,3); % *note that depending on the application this may or may not actually houes steady states
 
-timepoints = [60 300 600];
+timepoints = [60 300 600]; % set specific timepoints at which to pull values for each species' concentration trajectory; this is for Plot 2 (?) in plot_dimeric.m
 for ii = 1:size(timepoints,2)
     % Display timepoint 
 %     timepoints(1,ii)
 
-    % Identify index where time reaches 5 min = 300 secs
+    % Identify index of trajectory where time reaches desired timepoint
+    % (e.g., 5 min = 300 secs); Note: this is really only necessary /
+    % useful if not using specified timepoints in tspan for ODE solver
+    % (because in that case the solver chooses adaptive timesteps)
     idx = 1;
     while time(idx,1) < timepoints(1,ii)
         idx = idx+1;
@@ -141,13 +147,21 @@ for ii = 1:size(timepoints,2)
     steady_states(9,ii) = sol(idx,9)' ./ Params.TrxTotal;
 % vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
 
-    
-%     
-%     steady_states(1,1) = sol(end,6)/Params.PrxTotal; % PrxS
-%     steady_states(1,2) = sol(end,2)/Params.PrxTotal; % PrxSO
-%     steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
-%     steady_states = sol(idx,8)/Params.PrxIITotal; % PrxIISS
 end
+
+%%% Note to self: perhaps it would be cleaner to just use tspan to force
+%%% solver to give trajectories as per second values and then combine
+%%% just use appropriate rows of steady_states instead of computing
+%%% hyperoxidized timecourses separately?
+
+% Compute percent hyperoxidation timecourses
+prct_PrxIISO2 = sol(:,7) ./ Params.PrxIITotal;
+prct_PrxISO2  = sol(:,4) ./ Params.PrxITotal;
+
+% Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
+prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
+prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
+heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, prxI_over_prxSum];
 
 % Plot timecourse of PRXI/II SO2 at current bolus
 % figure
@@ -156,14 +170,5 @@ end
 % plot(time, PRXII_frac,'-',LineWidth=1)
 % hold on
 % plot(time, PRXI_frac,'--',LineWidth=1)
-
-% Compute percent hyperoxidation
-prct_PrxIISOO = sol(:,7) ./ Params.PrxIITotal;
-prct_PrxISOO  = sol(:,4) ./ Params.PrxITotal;
-
-% Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
-prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
-prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
-heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISOO, prct_PrxISOO, prxI_over_prxSum];
 
 end
