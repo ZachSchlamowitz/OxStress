@@ -142,5 +142,8 @@ for k=1:numel(fn) % loop over struct fields by fieldname
     SAM(k,2) = norm(vec_down_2  - vec_default);
     SAM(k,3) = norm(vec_up_10   - vec_default);
     SAM(k,4) = norm(vec_up_2    - vec_default);
+
+    %% Reset this parameter
+    Params.(fn{k}) = default_params.(fn{k});
 end
 toc

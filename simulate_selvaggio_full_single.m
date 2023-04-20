@@ -121,14 +121,15 @@ temp(11,:) = Params.TrxTotal - temp(8,:);
 sol = temp';
 
 % Initialize output matrix 
-steady_states = NaN(9,size(time,1)); % *note that depending on the application this may or may not actually houes steady states
+steady_states = NaN(11,size(time,1)); % *note that depending on the application this may or may not actually houes steady states
 
 % Pull desired steady-state* values of all species as fracs of total
-steady_states(1,:) = sol(:,1)' ./ bolus;
-steady_states(2,:) = sol(:,2)' ./ init_h2o2;
-steady_states(3:5,:) = sol(:,3:5)' ./ Params.PrxITotal;
-steady_states(6:8,:) = sol(:,6:8)'./ Params.PrxIITotal;
-steady_states(9,:) = sol(:,9)' ./ Params.TrxTotal;
+% steady_states(1,:) = sol(:,1)' ./ bolus;
+% steady_states(2,:) = sol(:,2)' ./ init_h2o2;
+% steady_states(3:5,:) = sol(:,3:5)' ./ Params.PrxITotal;
+% steady_states(6:8,:) = sol(:,6:8)'./ Params.PrxIITotal;
+% steady_states(9,:) = sol(:,9)' ./ Params.TrxTotal;
+steady_states(:,:) = sol(:,:)';
 % vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
 
 % Compute percent hyperoxidation timecourses
