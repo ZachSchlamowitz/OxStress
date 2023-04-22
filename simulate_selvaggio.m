@@ -104,8 +104,14 @@ initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 %opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
 
 % Initial values for knockout / knockdown experiments
-initvals = [bolus; init_h2o2;  0; 0; 0; 0.01; 0.001; 0.01; 0.01];
-Params.PrxITotal = 0;
+% PrxI Knockout ----------------------
+% initvals = [bolus; init_h2o2;  0; 0; 0; 0.01; 0.001; 0.01; 0.01];
+% Params.PrxITotal = 0;
+
+% PrxII Knockout
+% initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0; 0; 0; 0.01];
+% Params.PrxIITotal = 0;
+% ------------------------------------
 
 tic
 [time, sol] = ode23s(@selvaggio_model_2spec_perm, tspan, initvals);%, opts);
@@ -161,11 +167,13 @@ end
 % Compute percent hyperoxidation timecourses
 prct_PrxIISO2 = sol(:,7) ./ Params.PrxIITotal;
 prct_PrxISO2  = sol(:,4) ./ Params.PrxITotal;
+prct_prxII_disulfide = sol(:,8) ./ Params.PrxIITotal;
+prct_prxI_disulfide = sol(:,5) ./ Params.PrxITotal;
 
 % Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
 prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
 prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
-heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, prxI_over_prxSum];
+heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, prxI_over_prxSum, prct_prxII_disulfide, prct_prxI_disulfide];
 
 % Plot timecourse of PRXI/II SO2 at current bolus
 % figure

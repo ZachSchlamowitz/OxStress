@@ -6,7 +6,7 @@
 
 % Initialize 
 boluses = [0.001 2.5 5 10 25 50 100 250 500 1000 2000]'; % micromolar values
-outputs = NaN(9,3,size(boluses,2)); % this is just 1!
+outputs = NaN(12,3,size(boluses,2)); % this is just 1!
 dimeric_levels = NaN(size(boluses,1),1); % this is for Plot 1 -- replicating % dimeric PrxII at 5min post-bolus
 heatmap_data = struct;
 bolus_list = {'dose1', 'dose2', 'dose3', 'dose4', 'dose5', 'dose6', 'dose7', 'dose8', 'dose9', 'dose10', 'dose11'};
@@ -105,6 +105,8 @@ prxII_over_prxsum_matrix = NaN(size(heatmap_trajectories,1),size(boluses,2)); % 
 prxII_hyperox_matrix = NaN(size(prxII_over_prxsum_matrix));
 prxI_hyperox_matrix = NaN(size(prxII_over_prxsum_matrix));
 prxI_over_prxsum_matrix = NaN(size(prxII_over_prxsum_matrix));
+prxI_disulfide_matrix = NaN(size(prxII_over_prxsum_matrix));
+prxII_disulfide_matrix = NaN(size(prxII_over_prxsum_matrix));
 
 for j = 1:size(boluses,1)
     % column 1 of heatmap_data is time
@@ -112,6 +114,8 @@ for j = 1:size(boluses,1)
     prxII_hyperox_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,3);
     prxI_hyperox_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,4);
     prxI_over_prxsum_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,5);
+    prxII_disulfide_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,6);
+    prxI_disulfide_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,7);
 end
 
 % PrxII/PrxSum Heatmap
@@ -175,8 +179,11 @@ end
 
 % Obtain percent hyperoxidized across different doses at post-30min 
 % timepoint, compile into vector for plotting
-prxII_hyperox_vs_dose = prxII_hyperox_matrix(400,:)';
-prxI_hyperox_vs_dose = prxI_hyperox_matrix(400,:)';
+prxII_hyperox_vs_dose = prxII_hyperox_matrix(2900,:)';
+prxI_hyperox_vs_dose = prxI_hyperox_matrix(2900,:)';
+
+prxII_disulfide_vs_dose = prxII_disulfide_matrix(4700,:)';
+prxI_disulfide_vs_dose = prxI_disulfide_matrix(4700,:)';
 
 % figure
 % p1 = plot(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);
@@ -189,16 +196,31 @@ prxI_hyperox_vs_dose = prxI_hyperox_matrix(400,:)';
 % p2.Color(4) = 0.5;
 % legend('PrxII-SO2', 'PrxI-SO2')
 
-%figure
+figure
 s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);%, Color="#0072BD");%  MarkerFaceColor="#0072BD")
 hold on
 s2 = semilogx(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);%, Color="#EDB120");% , MarkerFaceColor="#D95319")
 s1.Color(4) = 0.75;
 s2.Color(4) = 0.5;
 xlabel('Dose (μM)')
-ylim([-0.01 0.25])
+ylim([-0.01 0.75])
 xlim([10^0 10^4])
 ylabel('% Hyperoxidzed Prx')
 legend('PrxII-SO2', 'PrxI-SO2')
 title("Percent Hyperoxidized Prx's vs Dose at 35min Post-Bolus")
+%hold on
+% figure
+% s1 = semilogx(boluses, prxII_disulfide_vs_dose, '--o', MarkerSize=10, LineWidth=2, Color="#0072BD");%  MarkerFaceColor="#0072BD")
+% hold on
+% s2 = semilogx(boluses, prxI_disulfide_vs_dose, '--s', MarkerSize=10,LineWidth=2, Color="#D95319");% , MarkerFaceColor="#D95319")
+% s1.Color(4) = 0.75;
+% s2.Color(4) = 0.5;
+% xlabel('Dose (μM)')
+% ylim([-0.01 0.75])
+% xlim([10^0 10^4])
+% ylabel('Prx Fraction')
+% % legend('PrxII-SO2', 'PrxI-SO2', 'PrxII-SS', 'PrxI-SS')
+% legend('PrxII-SS', 'PrxI-SS')
+% title("Percent Disulfide Prx vs Dose at 10 min Post-Bolus")
+%title("Percent Hyperoxidized and Disulfide Prx vs Dose at 35min Post-Bolus")
 % ---------------------------------
