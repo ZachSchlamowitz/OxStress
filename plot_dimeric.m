@@ -178,21 +178,21 @@ end
 prxII_hyperox_vs_dose = prxII_hyperox_matrix(400,:)';
 prxI_hyperox_vs_dose = prxI_hyperox_matrix(400,:)';
 
-figure
-p1 = plot(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);
-p1.Color(4) = 0.75;
-title("Andrew's Favorite Figure")
-xlabel('Dose (μM)')
-ylabel('% Hyperoxidzed Prx')
-hold on
-p2 = plot(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);
-p2.Color(4) = 0.5;
-legend('PrxII-SO2', 'PrxI-SO2')
+% figure
+% p1 = plot(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);
+% p1.Color(4) = 0.75;
+% title("Andrew's Favorite Figure")
+% xlabel('Dose (μM)')
+% ylabel('% Hyperoxidzed Prx')
+% hold on
+% p2 = plot(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);
+% p2.Color(4) = 0.5;
+% legend('PrxII-SO2', 'PrxI-SO2')
 
-figure
-s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);%  MarkerFaceColor="#0072BD")
+%figure
+s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);%, Color="#0072BD");%  MarkerFaceColor="#0072BD")
 hold on
-s2 = semilogx(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);% , MarkerFaceColor="#D95319")
+s2 = semilogx(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);%, Color="#EDB120");% , MarkerFaceColor="#D95319")
 s1.Color(4) = 0.75;
 s2.Color(4) = 0.5;
 xlabel('Dose (μM)')

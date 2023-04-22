@@ -103,23 +103,27 @@ initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 % vars = [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
 %opts = odeset('RelTol',1e-2, 'AbsTol',1e-5, 'InitialStep',0.1, 'MaxStep',0.1);
 
+% Initial values for knockout / knockdown experiments
+initvals = [bolus; init_h2o2;  0; 0; 0; 0.01; 0.001; 0.01; 0.01];
+Params.PrxITotal = 0;
+
 tic
 [time, sol] = ode23s(@selvaggio_model_2spec_perm, tspan, initvals);%, opts);
 toc
 
 % Obtain Trx-SH and Prx-S time courses; add as columns to sol
 temp = sol'; 
-temp = [temp; zeros(2, size(sol,1))];
+temp = [temp; zeros(3, size(sol,1))];
 % Note that we back out PrxS from total PrxTotal = PrxS + PrxSO + PrxSS +
 % PrxSO2 for both PRX1 and PRX2
-temp(9,:) = Params.PrxITotal - temp(2,:) - temp(3,:) - temp(4,:); % PRX1-S
-temp(10,:) = Params.PrxIITotal - temp(5,:) - temp(6,:) - temp(7,:); % PRX1-S
+temp(10,:) = Params.PrxITotal - temp(2,:) - temp(3,:) - temp(4,:); % PRX1-S
+temp(11,:) = Params.PrxIITotal - temp(5,:) - temp(6,:) - temp(7,:); % PRX2-S
 % and similarly we back out TrxSH from total TrxTotal = TrxSH + TrxSS.
-temp(11,:) = Params.TrxTotal - temp(8,:);
+temp(12,:) = Params.TrxTotal - temp(8,:);
 sol = temp';
 
 % Initialize output matrix 
-steady_states = NaN(9,3); % *note that depending on the application this may or may not actually houes steady states
+steady_states = NaN(12,3); % *note that depending on the application this may or may not actually houes steady states
 
 timepoints = [60 300 600]; % set specific timepoints at which to pull values for each species' concentration trajectory; this is for Plot 2 (?) in plot_dimeric.m
 for ii = 1:size(timepoints,2)
