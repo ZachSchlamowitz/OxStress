@@ -2,7 +2,7 @@
 % Author: Zach Schlamowitz, 2/14/2023
 
 %% Model
-function [steady_states, heatmap_vals] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type)
+function [steady_states, heatmap_vals, our_stat_debug] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type)
 % This function gets the steady state values of PrxS and PrxSO from a
 % simulation of the selvaggio ODE model with H2O2 supply rate v_sup
 
@@ -173,7 +173,21 @@ prct_prxI_disulfide = sol(:,5) ./ Params.PrxITotal;
 % Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
 prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
 prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
-heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, prxI_over_prxSum, prct_prxII_disulfide, prct_prxI_disulfide];
+
+prct_prxII_over_prxSum = prct_prxII_disulfide ./ (prct_prxII_disulfide + prct_prxI_disulfide);
+prct_prxI_over_prxSum = prct_prxI_disulfide ./ (prct_prxII_disulfide + prct_prxI_disulfide);
+
+% Also spit out raw disulfide trajectories
+prxII_disulfide = sol(:,8);
+prxI_disulfide = sol(:,5);
+
+heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, ...
+    prxI_over_prxSum, prct_prxII_disulfide, prct_prxI_disulfide, ...
+    prxII_disulfide, prxI_disulfide, prct_prxII_over_prxSum, prct_prxI_over_prxSum];
+
+our_stat_debug = [sol(:,8), sol(:,5), (sol(:,8)+sol(:,5)), prxII_over_prxSum, ...
+                  prct_prxII_disulfide, prct_prxI_disulfide, (prct_prxII_disulfide + prct_prxI_disulfide), prct_prxII_over_prxSum];
+
 
 % Plot timecourse of PRXI/II SO2 at current bolus
 % figure
