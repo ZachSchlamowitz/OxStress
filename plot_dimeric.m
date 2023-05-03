@@ -10,7 +10,7 @@ outputs = NaN(12,3,size(boluses,2)); % this is just 1!
 dimeric_levels = NaN(size(boluses,1),1); % this is for Plot 1 -- replicating % dimeric PrxII at 5min post-bolus
 heatmap_data = struct;
 our_stat_debug_alldoses = struct;
-bolus_list = {'dose1', 'dose2', 'dose3', 'dose4', 'dose5', 'dose6', 'dose7', 'dose8', 'dose9', 'dose10', 'dose11'};
+bolus_list = {'dose1', 'dose2', 'dose3', 'dose4', 'dose5', 'dose6', 'dose7', 'dose8', 'dose9', 'dose10', 'dose11'};%, 'dose12', 'dose13'};
 cell_type = 'HEK293'; % 'HEK293' or 'MCF7  '
 for i = 1:size(boluses,1)
     bolus = boluses(i);
@@ -140,23 +140,23 @@ prxII_disulfide_matrix_scaled = prxII_disulfide_matrix./prxII_disulfide_maxes;
 prxI_disulfide_matrix_scaled = prxI_disulfide_matrix./prxI_disulfide_maxes;
 
 
-% PrxII/PrxSum Heatmap
-figure
-h = heatmap(prct_prxII_over_prxsum_matrix(2501:5000,:));
-h.GridVisible = 'off';
-h.XLabel = 'Dose (μM)';
-h.YLabel = 'Time (sec)';
-h.Title = '(PrxIISS)/(PrxISS + PrxIISS) Heatmap';
-h.caxis([0 1]);
-h.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
-% Clean up y ticks:
-Y_labels = [2500:-1:1]';
-% Convert each number in the array into a string
-CustomYLabels = string(Y_labels);
-% Replace all but the fifth elements by spaces
-CustomYLabels(mod(Y_labels,600) ~= 0) = " ";
-h.YDisplayLabels = CustomYLabels;
-
+% % PrxII/PrxSum Heatmap
+% figure
+% h = heatmap(prct_prxII_over_prxsum_matrix(2501:5000,:));
+% h.GridVisible = 'off';
+% h.XLabel = 'Dose (μM)';
+% h.YLabel = 'Time (sec)';
+% h.Title = '(PrxIISS)/(PrxISS + PrxIISS) Heatmap';
+% h.caxis([0 1]);
+% h.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
+% % Clean up y ticks:
+% Y_labels = [2500:-1:1]';
+% % Convert each number in the array into a string
+% CustomYLabels = string(Y_labels);
+% % Replace all but the fifth elements by spaces
+% CustomYLabels(mod(Y_labels,600) ~= 0) = " ";
+% h.YDisplayLabels = CustomYLabels;
+% 
 % % PrxI/PrxSum Heatmap
 % figure
 % h3 = heatmap(prxI_over_prxsum_matrix(2501:5000,:));
@@ -168,7 +168,7 @@ h.YDisplayLabels = CustomYLabels;
 % h3.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
 % h3.YDisplayLabels = CustomYLabels; % Clean up y ticks
 % 
-% % PrxII Hyperoxidation Heatmap
+% PrxII Hyperoxidation Heatmap
 % figure
 % h2 = heatmap(prxII_hyperox_matrix(2501:5000,:));
 % h2.GridVisible = 'off';
@@ -193,12 +193,10 @@ h.YDisplayLabels = CustomYLabels;
 % ---------------------------------
 
 
+% Plot 4 --------------------------
+%     Andrew's Favorite Plot
+% ---------------------------------
 
-
-% % Plot 4 --------------------------
-% %     Andrew's Favorite Plot
-% % ---------------------------------
-% 
 % % Obtain percent hyperoxidized across different doses at post-30min 
 % % timepoint, compile into vector for plotting
 % prxII_hyperox_vs_dose = prxII_hyperox_matrix(2900,:)'; % 2900 for 35min
@@ -225,11 +223,13 @@ h.YDisplayLabels = CustomYLabels;
 % s1.Color(4) = 0.75;
 % s2.Color(4) = 0.5;
 % xlabel('Dose (μM)')
-% ylim([-0.01 0.75])
+% % ylim([-0.01 0.75])
 % xlim([10^0 10^4])
 % ylabel('% Hyperoxidzed Prx')
 % legend('PrxII-SO2', 'PrxI-SO2')
 % title("Percent Hyperoxidized Prx's vs Dose at 35min Post-Bolus")
+
+
 % %hold on
 % % figure
 % % s1 = semilogx(boluses, prxII_disulfide_vs_dose, '--o', MarkerSize=10, LineWidth=2, Color="#0072BD");%  MarkerFaceColor="#0072BD")
@@ -291,3 +291,18 @@ h.YDisplayLabels = CustomYLabels;
 % % legend('PrxII-SO2', 'PrxI-SO2')
 % % title("Maximum Percent Disulfide Prx's vs Dose")
 % ---------------------------------
+
+% AUTOMATE:
+% Prx-SS vs Time plots (for each dose)
+
+% for j = 1:size(boluses,1)
+%     figure
+%     plot(our_stat_debug_alldoses.(bolus_list{j})(:,5))
+%     hold on
+%     plot(our_stat_debug_alldoses.(bolus_list{j})(:,6))
+%     %xlim([0 600])
+%     xlabel('Time (sec)')
+%     ylabel('Percent Prx-SS')
+%     titlestr = strcat('Prx Disulfide Activity Time-course following ', num2str(boluses(j)), 'uM');
+%     title(titlestr)
+% end
