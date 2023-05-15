@@ -107,10 +107,12 @@ initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0.01; 0.001; 0.01; 0.01];
 % PrxI Knockout ----------------------
 % initvals = [bolus; init_h2o2;  0; 0; 0; 0.01; 0.001; 0.01; 0.01];
 % Params.PrxITotal = 0;
+% Params.PrxIITotal = 142; % correct for removal of PrxI pool
 
 % PrxII Knockout
 % initvals = [bolus; init_h2o2; 0.01; 0.001; 0.01;  0; 0; 0; 0.01];
 % Params.PrxIITotal = 0;
+% Params.PrxITotal = 32;
 % ------------------------------------
 
 tic

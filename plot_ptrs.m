@@ -1,8 +1,8 @@
-%% plot_dimeric.m
+%% plot_ptrs.m
 % Script to recreate Supplementary Figure S9 from Selvaggio supplement. 
 % Plots dimeric PRXII concentrations after 5min of simulation for 2 species
 % model against different H2O2 boluses
-
+% note: formerly named plot_dimeric.m
 
 % Initialize 
 boluses = [0.001 2.5 5 10 25 50 100 250 500 1000 2000]'; % micromolar values
@@ -168,13 +168,13 @@ prxI_disulfide_matrix_scaled = prxI_disulfide_matrix./prxI_disulfide_maxes;
 % h3.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
 % h3.YDisplayLabels = CustomYLabels; % Clean up y ticks
 % 
-% PrxII Hyperoxidation Heatmap
+% % PrxII Hyperoxidation Heatmap
 % figure
 % h2 = heatmap(prxII_hyperox_matrix(2501:5000,:));
 % h2.GridVisible = 'off';
 % h2.XLabel = 'Dose (μM)';
 % h2.YLabel = 'Time (sec)';
-% h2.Title = 'PrxII-SO2 Heatmap';
+% h2.Title = 'Fraction PrxII-SO2 vs Time and Bolus Dose';
 % h2.caxis([0 1]);
 % h2.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
 % h2.YDisplayLabels = CustomYLabels; % Clean up y ticks
@@ -185,7 +185,7 @@ prxI_disulfide_matrix_scaled = prxI_disulfide_matrix./prxI_disulfide_maxes;
 % h1.GridVisible = 'off';
 % h1.XLabel = 'Dose (μM)';
 % h1.YLabel = 'Time (sec)';
-% h1.Title = 'PrxI-SO2 Heatmap';
+% h1.Title = 'Fraction PrxI-SO2 vs Time and Bolus Dose';
 % h1.caxis([0 1]);
 % h1.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
 % h1.YDisplayLabels = CustomYLabels; % Clean up y ticks
@@ -201,7 +201,7 @@ prxI_disulfide_matrix_scaled = prxI_disulfide_matrix./prxI_disulfide_maxes;
 % % timepoint, compile into vector for plotting
 % prxII_hyperox_vs_dose = prxII_hyperox_matrix(2900,:)'; % 2900 for 35min
 % prxI_hyperox_vs_dose = prxI_hyperox_matrix(2900,:)';
-% 
+% % 
 % prxII_disulfide_vs_dose = prxII_disulfide_matrix(4700,:)';
 % prxI_disulfide_vs_dose = prxI_disulfide_matrix(4700,:)';
 % 
@@ -217,18 +217,18 @@ prxI_disulfide_matrix_scaled = prxI_disulfide_matrix./prxI_disulfide_maxes;
 % % legend('PrxII-SO2', 'PrxI-SO2')
 % 
 % figure
-% s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);%, Color="#0072BD");%  MarkerFaceColor="#0072BD")
+% s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);%, Color="#77AC30");%  MarkerFaceColor="#0072BD")
 % hold on
 % s2 = semilogx(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);%, Color="#EDB120");% , MarkerFaceColor="#D95319")
 % s1.Color(4) = 0.75;
 % s2.Color(4) = 0.5;
 % xlabel('Dose (μM)')
-% % ylim([-0.01 0.75])
+% ylim([-0.01 0.75])
 % xlim([10^0 10^4])
-% ylabel('% Hyperoxidzed Prx')
+% ylabel('Fraction Hyperoxidzed Prx')
 % legend('PrxII-SO2', 'PrxI-SO2')
-% title("Percent Hyperoxidized Prx's vs Dose at 35min Post-Bolus")
-
+% title("Fraction Hyperoxidized Prxs vs Dose at 35min Post-Bolus")
+% 
 
 % %hold on
 % % figure
@@ -294,15 +294,25 @@ prxI_disulfide_matrix_scaled = prxI_disulfide_matrix./prxI_disulfide_maxes;
 
 % AUTOMATE:
 % Prx-SS vs Time plots (for each dose)
-
+% 
 % for j = 1:size(boluses,1)
 %     figure
-%     plot(our_stat_debug_alldoses.(bolus_list{j})(:,5))
+%     plot(our_stat_debug_alldoses.(bolus_list{j})(:,5), LineWidth=2)
 %     hold on
-%     plot(our_stat_debug_alldoses.(bolus_list{j})(:,6))
-%     %xlim([0 600])
+%     plot(our_stat_debug_alldoses.(bolus_list{j})(:,6), LineWidth=2)
+%     xlim([0 600])
 %     xlabel('Time (sec)')
-%     ylabel('Percent Prx-SS')
-%     titlestr = strcat('Prx Disulfide Activity Time-course following ', num2str(boluses(j)), 'uM');
+%     ylabel('Fraction Prx-SS')
+%     legend('PrxII-SS', 'PrxI-SS')
+%     titlestr = strcat('Prx Disulfide Activity Time Course Following ', num2str(boluses(j)), 'uM Bolus');
 %     title(titlestr)
 % end
+
+
+% Plot 6: replication of dimeric 
+
+% prct_prxII_disulfide_vs_dose = prxII_prct_disulfide_matrix(4700,:)';
+% 
+% figure
+% bar(categorical(boluses), prct_prxII_disulfide_vs_dose)
+% ylim([0 1])
