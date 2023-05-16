@@ -46,18 +46,24 @@ end
 %% Plot
 figure
 loglog(v_sups, steady_states(:,1), 'o')
-title("PrxS Steady State versus v_{sup}")
+title("Steady State Fraction of PrxS versus v_{sup}", FontSize=12)
 ylim([10^-7 1])
 xlim([10^-8 10^-2])
+xlabel("v_{sup} (μM/sec)", FontSize=12)
+ylabel("Fraction PrxS", FontSize=12)
 
 figure
 loglog(v_sups, steady_states(:,2), 'o')
-title("PrxSO Steady State versus v_{sup}")
+title("Steady State Fraction of PrxSO versus v_{sup}", FontSize=12)
 ylim([10^-7 1])
 xlim([10^-8 10^-2])
+xlabel("v_{sup} (μM/sec)", FontSize=12)
+ylabel("Fraction PrxSO", FontSize=12)
 
 figure
 loglog(v_sups, steady_states(:,3), 'o')
-title("PrxSO2 Steady State versus v_{sup}")
+title("Steady State Fraction of PrxSO2 versus v_{sup}", FontSize=12)
 ylim([10^-7 1])
 xlim([10^-8 10^-2])
+xlabel("v_{sup} (μM/sec)", FontSize=12)
+ylabel("Fraction PrxSO2", FontSize=12)
