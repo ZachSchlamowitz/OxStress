@@ -2,7 +2,9 @@
 % Author: Zach Schlamowitz, 2/14/2023
 
 %% Model
-function [states_at_timepoints, steady_states, heatmap_vals, our_stat_debug] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type, num_prx)
+% function [states_at_timepoints, steady_states, heatmap_vals, our_stat_debug] = simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type, num_prx)
+function [trajectories_raw, trajectories_frac_total] = ...
+    simulate_selvaggio(bolus, intra_h2o2, v_sup, cell_type, num_prx)
 % This function gets the steady state values of PrxS and PrxSO from a
 % simulation of the selvaggio ODE model with H2O2 supply rate v_sup
 
@@ -185,85 +187,99 @@ elseif num_prx == 2
     temp = [temp; zeros(3, size(sol,1))];
     % Note that we back out PrxS from total PrxTotal = PrxS + PrxSO + PrxSS +
     % PrxSO2 for both PRX1 and PRX2
-    temp(10,:) = Params.PrxITotal - temp(2,:) - temp(3,:) - temp(4,:); % PRX1-S
-    temp(11,:) = Params.PrxIITotal - temp(5,:) - temp(6,:) - temp(7,:); % PRX2-S
+    temp(10,:) = Params.PrxITotal - temp(3,:) - temp(4,:) - temp(5,:); % PRX1-S
+    temp(11,:) = Params.PrxIITotal - temp(6,:) - temp(7,:) - temp(8,:); % PRX2-S
     % and similarly we back out TrxSH from total TrxTotal = TrxSH + TrxSS.
-    temp(12,:) = Params.TrxTotal - temp(8,:);
+    temp(12,:) = Params.TrxTotal - temp(9,:);
     sol = temp';
+
+    % Store raw trajectories
+    trajectories_raw = sol;
+    
+    % Convert states (e.g., PrxII-SO) to proportion of total compartment (e.g., PrxIITotal)
+    trajectories_frac_total = NaN(size(sol));
+    trajectories_frac_total(:,1) = sol(:,1) ./ bolus;  % external H2O2
+    trajectories_frac_total(:,2) = sol(:,2) ./ init_h2o2;  % internal H2O2
+    trajectories_frac_total(:,3:5) = sol(:,3:5) ./ Params.PrxITotal; % PrxI states
+    trajectories_frac_total(:,10) = sol(:,10) ./ Params.PrxITotal;
+    trajectories_frac_total(:,6:8) = sol(:,6:8)./ Params.PrxIITotal; % PrxII states
+    trajectories_frac_total(:,11) = sol(:,11) ./ Params.PrxIITotal;
+    trajectories_frac_total(:,9) = sol(:,9) ./ Params.TrxTotal; % Trx States
+    trajectories_frac_total(:,12) = sol(:,12) ./ Params.TrxTotal;
+    
     
     % Obtain state trajectories' values at specific timepoints (this is for
     % replication of figures that examine state values at  
     % specific timepoints (e.g., 5min post-bolus)
-    
+
 %%% vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv %%%
     % Clean up this section by following logic of note to self and keeping
     % careful track of what's used in the plot_ptrs file where and in what
     % order
 
-    states_at_timepoints = NaN(12,3); % Initialize output matrix 
-    timepoints = [60 300 600];  % Set timepoints at which to pull states
-    % Get states at each of these timepoints
-    for ii = 1:size(timepoints,2)
-        % Pull desired values of all species as fracs of total
-        states_at_timepoints(1,ii) = sol(idx,1)' ./ bolus;
-        states_at_timepoints(2,ii) = sol(idx,2)' ./ init_h2o2;
-        states_at_timepoints(3:5,ii) = sol(idx,3:5)' ./ Params.PrxITotal;
-        states_at_timepoints(6:8,ii) = sol(idx,6:8)'./ Params.PrxIITotal;
-        states_at_timepoints(9,ii) = sol(idx,9)' ./ Params.TrxTotal;
-    % recall vars are [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
-    end
-    
-    % Obtain Steady States of all species as fracs of total
-    steady_states = NaN(12,1);
-    steady_states(1,1) = sol(end,1)' ./ bolus;
-    steady_states(2,1) = sol(end,2)' ./ init_h2o2;
-    steady_states(3:5,1) = sol(end,3:5)' ./ Params.PrxITotal;
-    steady_states(6:8,1) = sol(end,6:8)'./ Params.PrxIITotal;
-    steady_states(9,1) = sol(end,9)' ./ Params.TrxTotal;
-    
-    %%% Note to self: perhaps it would be cleaner to just use tspan to force
-    %%% solver to give trajectories as per second values and then combine
-    %%% just use appropriate rows of steady_states instead of computing
-    %%% hyperoxidized timecourses separately?
-    
-    % Compute percent hyperoxidation timecourses
-    prct_PrxIISO2 = sol(:,7) ./ Params.PrxIITotal;
-    prct_PrxISO2  = sol(:,4) ./ Params.PrxITotal;
-    prct_prxII_disulfide = sol(:,8) ./ Params.PrxIITotal;
-    prct_prxI_disulfide = sol(:,5) ./ Params.PrxITotal;
-    
-    % Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
-    prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
-    prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
-    
-    prct_prxII_over_prxSum = prct_prxII_disulfide ./ (prct_prxII_disulfide + prct_prxI_disulfide);
-    prct_prxI_over_prxSum = prct_prxI_disulfide ./ (prct_prxII_disulfide + prct_prxI_disulfide);
-    
-    % Also spit out raw disulfide trajectories
-    prxII_disulfide = sol(:,8);
-    prxI_disulfide = sol(:,5);
-    
-    heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, ...
-        prxI_over_prxSum, prct_prxII_disulfide, prct_prxI_disulfide, ...
-        prxII_disulfide, prxI_disulfide, prct_prxII_over_prxSum, prct_prxI_over_prxSum];
-    
-    our_stat_debug = [sol(:,8), sol(:,5), (sol(:,8)+sol(:,5)), prxII_over_prxSum, ...
-                      prct_prxII_disulfide, prct_prxI_disulfide, (prct_prxII_disulfide + prct_prxI_disulfide), prct_prxII_over_prxSum];
-    
-    
-    % Plot timecourse of PRXI/II SO2 at current bolus
-    % figure
-    % PRXII_frac = sol(:,8)./Params.PrxIITotal;
-    % PRXI_frac = sol(:,5)./Params.PrxITotal;
-    % plot(time, PRXII_frac,'-',LineWidth=1)
-    % hold on
-    % plot(time, PRXI_frac,'--',LineWidth=1)
-    
-%%% ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ %%%
+%     states_at_timepoints = NaN(12,3); % Initialize output matrix 
+%     timepoints = [60 300 600];  % Set timepoints at which to pull states
+%     % Get states at each of these timepoints
+%     for ii = 1:size(timepoints,2)
+%         % Pull desired values of all species as fracs of total
+%         states_at_timepoints(1,ii) = sol(idx,1)' ./ bolus;
+%         states_at_timepoints(2,ii) = sol(idx,2)' ./ init_h2o2;
+%         states_at_timepoints(3:5,ii) = sol(idx,3:5)' ./ Params.PrxITotal;
+%         states_at_timepoints(6:8,ii) = sol(idx,6:8)'./ Params.PrxIITotal;
+%         states_at_timepoints(9,ii) = sol(idx,9)' ./ Params.TrxTotal;
+%     % recall vars are [(1)H2O2_out, (2)H2O2, (3)PrxISO, (4)PrxISO2, (5)PrxISS, (6)PrxIISO, (7)PrxIISO2, (8)PrxIISS, (9)TrxSS]
+%     end
+%     
+%     % Obtain Steady States of all species as fracs of total
+%     steady_states = NaN(12,1);
+%     steady_states(1,1) = sol(end,1)' ./ bolus;
+%     steady_states(2,1) = sol(end,2)' ./ init_h2o2;
+%     steady_states(3:5,1) = sol(end,3:5)' ./ Params.PrxITotal;
+%     steady_states(6:8,1) = sol(end,6:8)'./ Params.PrxIITotal;
+%     steady_states(9,1) = sol(end,9)' ./ Params.TrxTotal;
+%     
+%     %%% Note to self: perhaps it would be cleaner to just use tspan to force
+%     %%% solver to give trajectories as per second values and then combine
+%     %%% just use appropriate rows of steady_states instead of computing
+%     %%% hyperoxidized timecourses separately?
+%     
+%     % Compute percent hyperoxidation timecourses
+%     prct_PrxIISO2 = sol(:,7) ./ Params.PrxIITotal;
+%     prct_PrxISO2  = sol(:,4) ./ Params.PrxITotal;
+%     prct_prxII_disulfide = sol(:,8) ./ Params.PrxIITotal;
+%     prct_prxI_disulfide = sol(:,5) ./ Params.PrxITotal;
+%     
+%     % Compute our heatmap statistic: Prx2-SS/(Prx2-SS + Prx1-SS)
+%     prxII_over_prxSum = sol(:,8)./(sol(:,8)+sol(:,5));
+%     prxI_over_prxSum = sol(:,5)./(sol(:,8)+sol(:,5));
+%     
+%     prct_prxII_over_prxSum = prct_prxII_disulfide ./ (prct_prxII_disulfide + prct_prxI_disulfide);
+%     prct_prxI_over_prxSum = prct_prxI_disulfide ./ (prct_prxII_disulfide + prct_prxI_disulfide);
+%     
+%     % Also spit out raw disulfide trajectories
+%     prxII_disulfide = sol(:,8);
+%     prxI_disulfide = sol(:,5);
+%     
+%     heatmap_vals = [time, prxII_over_prxSum, prct_PrxIISO2, prct_PrxISO2, ...
+%         prxI_over_prxSum, prct_prxII_disulfide, prct_prxI_disulfide, ...
+%         prxII_disulfide, prxI_disulfide, prct_prxII_over_prxSum, prct_prxI_over_prxSum];
+%     
+%     % our_stat_debug = [sol(:,8), sol(:,5), (sol(:,8)+sol(:,5)), prxII_over_prxSum, ...
+%     %                   prct_prxII_disulfide, prct_prxI_disulfide, (prct_prxII_disulfide + prct_prxI_disulfide), prct_prxII_over_prxSum];
+%     
+%     
+%     % Plot timecourse of PRXI/II SO2 at current bolus
+%     % figure
+%     % PRXII_frac = sol(:,8)./Params.PrxIITotal;
+%     % PRXI_frac = sol(:,5)./Params.PrxITotal;
+%     % plot(time, PRXII_frac,'-',LineWidth=1)
+%     % hold on
+%     % plot(time, PRXI_frac,'--',LineWidth=1)
+%     
+% %%% ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ %%%
 else
 
     error("ERROR: Model only supports one or two peroxiredoxin species. Please use num_prx =1 or =2 to specify model variant (see README for more).")
-    break
 
 end
 
