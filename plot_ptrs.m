@@ -22,12 +22,12 @@ for i = 1:size(boluses,1)
     % for large bolus this is negligible
 
 %   [ss, heatmap_trajectories, our_stat_debug] = simulate_selvaggio(bolus, intracellular_val, NaN, cell_type);
-    [trajectories_raw, trajectories_frac_total] = simulate_selvaggio(bolus, intracellular_val, NaN, cell_type, num_prx);
+    [trajectories_raw, trajectories_frac] = simulate_selvaggio(bolus, intracellular_val, NaN, cell_type, num_prx);
     
 %     outputs(:,:,i) = ss;
 %    dimeric_levels(i,:) = ss(8,2); % 8=PRXIISS, 2=@5min
     gross_traj.(bolus_list{i}) = trajectories_raw;
-    frac_traj.(bolus_list{i}) = trajectories_frac_total;
+    frac_traj.(bolus_list{i}) = trajectories_frac;
 %    heatmap_data.(bolus_list{i}) = heatmap_trajectories;
 %    our_stat_debug_alldoses.(bolus_list{i}) = our_stat_debug;
 
@@ -49,13 +49,13 @@ prxII_disulfide_matrix = NaN(size(frac_prxII_hyperox_matrix));
 for j = 1:size(boluses,1)
     % column 1 of heatmap_data is time
     %prxII_over_prxsum_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,2);
-    frac_prxII_hyperox_matrix(:,j) = frac_traj.(bolus_list{j})(end:-1:1,7);
-    frac_prxI_hyperox_matrix(:,j) = frac_traj.(bolus_list{j})(end:-1:1,4);
+    frac_prxII_hyperox_matrix(:,j) = frac_traj.(bolus_list{j})(:,7);
+    frac_prxI_hyperox_matrix(:,j) = frac_traj.(bolus_list{j})(:,4);
     %prxI_over_prxsum_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,5);
-    frac_prxII_disulfide_matrix(:,j) = frac_traj.(bolus_list{j})(end:-1:1,8);
-    frac_prxI_disulfide_matrix(:,j) = frac_traj.(bolus_list{j})(end:-1:1,5);
-    prxII_disulfide_matrix(:,j) = gross_traj.(bolus_list{j})(end:-1:1,8);
-    prxI_disulfide_matrix(:,j) = gross_traj.(bolus_list{j})(end:-1:1,5);
+    frac_prxII_disulfide_matrix(:,j) = frac_traj.(bolus_list{j})(:,8);
+    frac_prxI_disulfide_matrix(:,j) = frac_traj.(bolus_list{j})(:,5);
+    prxII_disulfide_matrix(:,j) = gross_traj.(bolus_list{j})(:,8);
+    prxI_disulfide_matrix(:,j) = gross_traj.(bolus_list{j})(:,5);
     %prct_prxII_over_prxsum_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,10);
     %prct_prxI_over_prxsum_matrix(:,j) = heatmap_data.(bolus_list{j})(end:-1:1,11);
 end
@@ -76,10 +76,13 @@ end
 % Plot 1 ------------------------------------
 % Replicating Selvaggio Supplemental Figure 9
 % -------------------------------------------
-prct_prxII_disulfide_vs_dose = frac_prxII_disulfide_matrix(4700,:)'; % grab disulfide proportion of prxII @ 5 min post bolus; note the data is flipped so we move down 300 seconds up from the bottom of the column
+prct_prxII_disulfide_vs_dose = frac_prxII_disulfide_matrix(300,:)'; % grab disulfide proportion of prxII @ 5 min post-bolus
 figure
 bar(categorical(boluses), prct_prxII_disulfide_vs_dose)
-ylim([0 1])
+ylim([0 0.1]) % NOTE this is the zoomed version, shown in the thesis document, not the scale shown in Selvaggio/Sobotta.
+title('Proportion PrxII-SS vs Dose at 5min Post-Bolus')
+xlabel('H2O2 Bolus (µM)')
+ylabel('Proportion Dimeric PrxII')
 % -------------------------------------------
 
 
@@ -175,20 +178,32 @@ ylim([0 1])
 % h3.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
 % h3.YDisplayLabels = CustomYLabels; % Clean up y ticks
 % 
+
+% To plot the heatmaps so that time is increasing along y axis, we flip the
+% relevant data vertically:
+frac_prxII_hyperox_matrix_plotting = frac_prxII_hyperox_matrix(end:-1:1,:);
+frac_prxI_hyperox_matrix_plotting = frac_prxI_hyperox_matrix(end:-1:1,:);
+
 % PrxII Hyperoxidation Heatmap
 figure
-h2 = heatmap(frac_prxII_hyperox_matrix(2501:5000,:));
+h2 = heatmap(frac_prxII_hyperox_matrix_plotting(2501:5000,:)); % We plot the first half of the time sereies only to focus on first ~40min
 h2.GridVisible = 'off';
 h2.XLabel = 'Dose (μM)';
 h2.YLabel = 'Time (sec)';
 h2.Title = 'Fraction PrxII-SO2 vs Time and Bolus Dose';
 h2.caxis([0 1]);
 h2.XData = {'0', '2.5', '5', '10', '25', '50', '100', '250', '500', '1000', '2000'};
+% Clean up y ticks:
+Y_labels = [2500:-1:1]';
+% Convert each number in the array into a string
+CustomYLabels = string(Y_labels);
+% Replace all but the fifth elements by spaces
+CustomYLabels(mod(Y_labels,600) ~= 0) = " ";
 h2.YDisplayLabels = CustomYLabels; % Clean up y ticks
 
 % PrxI Hyperoxidation Heatmap
 figure
-h1 = heatmap(frac_prxI_hyperox_matrix(2501:5000,:));
+h1 = heatmap(frac_prxI_hyperox_matrix_plotting(2501:5000,:));
 h1.GridVisible = 'off';
 h1.XLabel = 'Dose (μM)';
 h1.YLabel = 'Time (sec)';
@@ -206,8 +221,8 @@ h1.YDisplayLabels = CustomYLabels; % Clean up y ticks
 
 % Obtain percent hyperoxidized across different doses at post-30min 
 % timepoint, compile into vector for plotting
-prxII_hyperox_vs_dose = frac_prxII_hyperox_matrix(2900,:)'; % 2900 for 35min
-prxI_hyperox_vs_dose = frac_prxI_hyperox_matrix(2900,:)';
+prxII_hyperox_vs_dose = frac_prxII_hyperox_matrix(2100,:)'; % 2100sec = 35min
+prxI_hyperox_vs_dose = frac_prxI_hyperox_matrix(2100,:)';
 % 
 % prxII_disulfide_vs_dose = frac_prxII_disulfide_matrix(4700,:)';
 % prxI_disulfide_vs_dose = frac_prxI_disulfide_matrix(4700,:)';
@@ -224,9 +239,9 @@ prxI_hyperox_vs_dose = frac_prxI_hyperox_matrix(2900,:)';
 % legend('PrxII-SO2', 'PrxI-SO2')
 
 figure
-s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2);%, Color="#77AC30");%  MarkerFaceColor="#0072BD")
+s1 = semilogx(boluses, prxII_hyperox_vs_dose, '-o', MarkerSize=10, LineWidth=2.5);%, Color="#77AC30");%  MarkerFaceColor="#0072BD")
 hold on
-s2 = semilogx(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2);%, Color="#EDB120");% , MarkerFaceColor="#D95319")
+s2 = semilogx(boluses, prxI_hyperox_vs_dose, '-s', MarkerSize=10,LineWidth=2.5);%, Color="#EDB120");% , MarkerFaceColor="#D95319")
 s1.Color(4) = 0.75;
 s2.Color(4) = 0.5;
 xlabel('Dose (μM)')
