@@ -64,14 +64,17 @@ if num_prx == 1
     temp(7,:) = Params.TrxTotal - temp(5,:);
     sol = temp';
     
-    % Pull steady-state values of desired species 
-    % (NOTE: that here we assume the simulation has run long enough to 
-    % reach a steady state so are just pulling the last values of the 
-    % timecourses. Check this assumption if change duration of simulation.) 
-    steady_states = NaN(1,2);
-    steady_states(1,1) = sol(end,6)/Params.PrxTotal; % PrxS
-    steady_states(1,2) = sol(end,2)/Params.PrxTotal; % PrxSO
-    steady_states(1,3) = sol(end,3)/Params.PrxTotal; % PrxSO2
+    % Store raw trajectories
+    trajectories_raw = sol;
+    
+    % Convert states (e.g., PrxII-SO) to proportion of total compartment (e.g., PrxTotal)
+    % vars = [(1)H2O2, (2)PrxSO, (3)PrxSO2, (4)PrxSS, (5)TrxSS]
+    trajectories_frac = NaN(size(sol));
+    trajectories_frac(:,1) = sol(:,1) ./ init_h2o2;  % H2O2
+    trajectories_frac(:,2:4) = sol(:,2:4) ./ Params.PrxTotal; % Prx states
+    trajectories_frac(:,6) = sol(:,6) ./ Params.PrxTotal;
+    trajectories_frac(:,5) = sol(:,5) ./ Params.TrxTotal; % Trx States
+    trajectories_frac(:,7) = sol(:,7) ./ Params.TrxTotal;
 
 
 elseif num_prx == 2
