@@ -4,17 +4,19 @@
 % model against different H2O2 boluses
 % note: formerly named plot_dimeric.m
 
+%% User Options
 % Initialize 
+num_prx = 2; % =2 or =1, specifies which version of model to use
+% if num_prx is =1, ignore all other settings in this section
 boluses = [0.001 2.5 5 10 25 50 100 250 500 1000 2000]'; % micromolar values
-% outputs = NaN(12,3,size(boluses,2)); % this is just 1!
-% dimeric_levels = NaN(size(boluses,1),1); % this is for Plot 1 -- replicating % dimeric PrxII at 5min post-bolus
-% heatmap_data = struct;
-% our_stat_debug_alldoses = struct;
+bolus_list = {'dose1', 'dose2', 'dose3', 'dose4', 'dose5', 'dose6', 'dose7', 'dose8', 'dose9', 'dose10', 'dose11'};%, 'dose12', 'dose13'}; % Modify this to match length of boluses
+cell_type = 'HEK293'; % 'HEK293' or 'MCF7  '
+
+%% End User Options
+
+%% Initialization, cont. and 1-prx logic
 gross_traj = struct;
 frac_traj = struct;
-bolus_list = {'dose1', 'dose2', 'dose3', 'dose4', 'dose5', 'dose6', 'dose7', 'dose8', 'dose9', 'dose10', 'dose11'};%, 'dose12', 'dose13'};
-cell_type = 'HEK293'; % 'HEK293' or 'MCF7  '
-num_prx = 2; % =2 or =1, specifies which version of model to use
 
 if num_prx == 1
     
@@ -27,23 +29,19 @@ if num_prx == 1
     [PrxS_fig, PrxSO_fig, PrxSO2_fig] = plot_phenotypes(intracellular_val, num_prx);
 
 elseif num_prx == 2
+    v_sup = NaN; % v_sup not used in 2-prx model
 
     for i = 1:size(boluses,1)
         bolus = boluses(i);
         intracellular_val = min(0.01*bolus, 0.01); % intracellular is ~1% of bolus concentration, but...
         % for small bolus we assume a resting level of h2o2 in the cell of 0.01 uM;
         % for large bolus this is negligible
-    
-    %   [ss, heatmap_trajectories, our_stat_debug] = simulate_selvaggio(bolus, intracellular_val, NaN, cell_type);
-        [trajectories_raw, trajectories_frac] = simulate_selvaggio(bolus, intracellular_val, NaN, cell_type, num_prx);
-        
-    %     outputs(:,:,i) = ss;
-    %    dimeric_levels(i,:) = ss(8,2); % 8=PRXIISS, 2=@5min
+
+        [trajectories_raw, trajectories_frac] = simulate_selvaggio(bolus, intracellular_val, v_sup, cell_type, num_prx);
+
         gross_traj.(bolus_list{i}) = trajectories_raw;
         frac_traj.(bolus_list{i}) = trajectories_frac;
-    %    heatmap_data.(bolus_list{i}) = heatmap_trajectories;
-    %    our_stat_debug_alldoses.(bolus_list{i}) = our_stat_debug;
-    
+
     end
     
     %% Pull desired data for plotting
