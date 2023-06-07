@@ -15,7 +15,7 @@ originally part of Zach Schlamowitz's Senior Honors Thesis project at the Univer
 Transcription Factor Activation with a Mathematical Model," and was used to examine connections 
 between cellular oxidative stress response (namelly the peroxiredoxin signaling / stress response 
 system) and the dynamics of related transcription factor activity. A copy of this manuscript can
-be found here: [LINK].
+be found here: https://drive.google.com/file/d/1xkmWDTvFXRTIzlNSFDZOAkNkLp2GAUY-/view?usp=sharing.
 
 Below, we outline the key code structure and provide instructions for using the model to simulate
 the PTRS under different H2O2 conditions.
