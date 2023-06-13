@@ -127,6 +127,7 @@ Main functions:
 - (o) simulate_selvaggio_full_single: main function to run a single condition simulation
 Susidiary functions:
 - (*) simulate_selvaggio: internal function called by < plot_ptrs > to simulate a single condition
+- (*) plot_phenotypes: internal function called by < plot_ptrs > to identify steady state dependence on the 1-Prx model parameter v_sup
 - (*/o) selvaggio_model_2spec_perm: function containing ODEs for the two peroxiredoxin model with membrane H2O2 permeation
 - (*/o) selvaggio_model: function containing ODEs for the one peroxiredoxin model (no H2O2 permeation)
 Other Files:
