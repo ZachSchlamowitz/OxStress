@@ -105,8 +105,6 @@ elseif num_prx == 2
         Params.k_Red = 0.21; % (µM^-1 sec^-1) default: 0.21 (converted from 2.1e5 M^-1 sec^-1) rate constant for reduction of PrxI/II-SS to PrxI/II-SH
         Params.VAppMax = 190; % (µM/sec) default: 190 (converted from 0.19 mM/sec) Max rate of TrxR activity; Note that is reported as VMax in Table 2; presumably interchangeable?
         Params.K_M = 1.8; % (µM) default: 1.8; K_M for TrxR activity
-        Params.k_Sulf = 3.7e-3; % (µM^-1 sec^-1) default: 3.7e-3 (converted from 3.7e3 M^-1 sec^-1) rate constant for Prx hyperoxidation
-        Params.k_Cond = 7.3; % (sec^-1) default: 7.3; rate constant for Prx condensation
     
         % From Supplement section 3.2.3 (text)
         Params.k_Sulf_I = 1.3e-3; % (µM^-1 sec^-1) (converted from 1.3e3 M^-1 sec^-1) rate constant for PrxI hyperoxidation

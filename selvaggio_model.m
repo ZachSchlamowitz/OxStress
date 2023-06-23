@@ -1,36 +1,20 @@
-% selvaggio_model.m
-
-% This is an implementation of the Selvaggio (2018) PRX system ODE model
-
-%% Params, Commands, Etc.
-
-% Initialize parameters
-% global Params
-
-
-% disp(strcat('Time elapsed: ', num2str(toc)))
-
-
-%% Plotting
-
-% % Time Series Plot
-% plot(time, sol, LineWidth=2)
-% % title('Predator, Prey Populations Over Time')
-% xlabel('t')
-% % ylabel('Population')
-% legend('H2O2', 'PrxSO', 'PrxSO2', 'PrxSS', 'TrxSS', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',14 )
-% 
-% figure
-% 
-% beginning = ceil(.75*length(time));
-% plot(time(1:beginning), sol(1:beginning, :), LineWidth=2)
-% % title('Predator, Prey Populations Over Time')
-% xlabel('t')
-% % ylabel('Population')
-% legend('H2O2', 'PrxSO', 'PrxSO2', 'PrxSS', 'TrxSS','PrxS','TrxSH','Location', 'North', 'FontSize',14 )
+%% selvaggio_model.m
+% Author: Zach Schlamowitz
+%
+% SELVAGGIO_MODEL is an implementation of the ODE model for the
+% peroxiredoxin (prx) - thioredoxin (trx) system proposed by Selvaggio et 
+% al. (2018). This function houses the ODEs themselves in an isolated file
+% that can be passed in (via a function handle) to an ODE solver. Such
+% usage is core to the simulation process run using either 
+% plot_ptrs.m > simulate_selvaggio.m or simulate_selvaggio_full_single.m.
+%
+% SELVAGGIO_MODEL houses the single Prx model; see the main text of 
+% Selvaggio et al. (2018) for the source equations. For the two Prx species
+% model(s) see selvaggio_model_2spec.m and selvaggio_model_2spec_perm.m.
 
 %% Model
 function eqs = selvaggio_model(t,vars, Params)
+
     global Params
     % Key:
     % vars = [(1)H2O2, (2)PrxSO, (3)PrxSO2, (4)PrxSS, (5)TrxSS]
@@ -43,18 +27,21 @@ function eqs = selvaggio_model(t,vars, Params)
     % dH202/dt
     % eqs(1) = v_sup - k_Alt*H2O2 - k_Ox*PrxS*H2O2 - k_Sulf*PrxSO*H2O2;
     eqs(1) = Params.v_sup - Params.k_Alt*vars(1) - Params.k_Ox*PrxS*vars(1) - Params.k_Sulf*vars(2)*vars(1);
+
     % dPrxSO/dt
     % eqs(2) = k_Ox*PrxS*H2O2 + k_Srx*PrxSO2 - k_Sulf*PrxSO*H2O2 - k_Cond*PrxSO;
     eqs(2) = Params.k_Ox*PrxS*vars(1) + Params.k_Srx*vars(3) - Params.k_Sulf*vars(2)*vars(1) - Params.k_Cond*vars(2);
+
     % dPrxSO2/dt
     % eqs(3) = k_Sulf*PrxSO*H2O2 - k_Srx*PrxSO2;
     eqs(3) = Params.k_Sulf*vars(2)*vars(1) - Params.k_Srx*vars(3);
+
     % dPrxSS/dt
     % eqs(4) = k_Cond*PrxSO - k_Red*TrxSH*PrxSS;
     eqs(4) = Params.k_Cond*vars(2) - Params.k_Red*TrxSH*vars(4);
+
     % dTrxSS/dt
     % eqs(5) = k_Red*TrxSH*PrxSS - VAppMax*(TrxSS)/(K_M+TrxSS);
     eqs(5) = Params.k_Red*TrxSH*vars(4) - Params.VAppMax*(vars(5))/(Params.K_M+vars(5));
-
 
 end

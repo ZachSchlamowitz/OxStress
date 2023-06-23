@@ -1,35 +1,18 @@
-% selvaggio_model_2spec_perm.m
-
-% This is an implementation of the Selvaggio (2018) PRX system ODE model
-% from their supplement that additionally models two species of PRX and
-% accounts for permeability
-
-%% Params, Commands, Etc.
-
-% Initialize parameters
-% global Params
-
-
-% disp(strcat('Time elapsed: ', num2str(toc)))
-
-
-%% Plotting
-
-% % Time Series Plot
-% plot(time, sol, LineWidth=2)
-% % title('Predator, Prey Populations Over Time')
-% xlabel('t')
-% % ylabel('Population')
-% legend('H2O2', 'PrxSO', 'PrxSO2', 'PrxSS', 'TrxSS', 'PrxS','TrxSH', 'Location', 'North', 'FontSize',14 )
-% 
-% figure
-% 
-% beginning = ceil(.75*length(time));
-% plot(time(1:beginning), sol(1:beginning, :), LineWidth=2)
-% % title('Predator, Prey Populations Over Time')
-% xlabel('t')
-% % ylabel('Population')
-% legend('H2O2', 'PrxSO', 'PrxSO2', 'PrxSS', 'TrxSS','PrxS','TrxSH','Location', 'North', 'FontSize',14 )
+%% selvaggio_model_2spec_perm.m
+% Author: Zach Schlamowitz
+%
+% SELVAGGIO_MODEL_2SPEC_PERM is an implementation of the Selvaggio et 
+% al. (2018) Prx system ODE model that models two species of PRX with H2O2
+% membrane permeability. This function houses the ODEs themselves in an 
+% isolated file that can be passed in (via a function handle) to an ODE 
+% solver. Such usage is core to the simulation process run using either 
+% plot_ptrs.m > simulate_selvaggio.m or simulate_selvaggio_full_single.m.
+%
+% Source equations for the model are taken from the supplementary 
+% material to Selvaggio et al. (2018), and can be seen there or in the main
+% text of Zach Schlamowitz's honors thesis. For the two Prx species model 
+% without H2O2 membrane permation, see selvaggio_model_2spec.m, and for the 
+% one Prx species model, see selvaggio_model.m.
 
 %% Model
 function eqs = selvaggio_model_2spec_perm(t,vars, Params)

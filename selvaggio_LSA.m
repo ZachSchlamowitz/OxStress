@@ -1,7 +1,31 @@
-%% selvaggio_LSA.m Linear Stability Analysis of Selvaggio ODEs
+%% selvaggio_LSA.m 
 % Author: Zach Schlamowitz, 2/15/23
+%
+% SELVAGGIO_LSA: Linear Stability Analysis of Selvaggio ODEs
+% This script implements a simple linear stability analyis on the single
+% Prx species variant of the PTRS model (see text of Selvaggio et al.
+% (2018) for the source equations). The script outputs eigenvectors and
+% eignevalues corresponding to a given steady state of the PTRS (these
+% outputs can be used to identify the stability of said steady state and
+% rates of convergence to it). Obtaining the steady state itself can be
+% approached in two ways: 
+% (1) identification of equilbiria is included as 
+% a functionality in this script using symbolic computation; however, this
+% may fail to identify all equilibria and we did not thoroughly exlpore its
+% accuracy. 
+% (2) simply inputting a steady state vector identified elsewhere. For
+% instance, one can run a simulation of the PTRS under the desired
+% experimental condition and look at state trajectories to identify a
+% steady state which the system approaches as time progresses. Saving this
+% steady state in the workspace (as a vector) and then inputting it in the
+% appropriate place below (see comments) allows the same LSA as does 
+% computing the steady state using this script. 
+%
+% Note that option (1) requires installation of the MATLAB Symbolic 
+% Computation Toolbox. 
 
-% Setup
+%% Setup
+% Store default parameters for 1-prx model
 Params = struct();
 Params.v_sup = 10^(-5+6); % (µM/sec) (converted from M/sec) ranges 10^-7 to 10^-3 in Fig 3, based on varying levels of extracellular H202
 Params.k_Alt = 79; % (sec^-1) default: 79
@@ -15,9 +39,8 @@ Params.K_M = 1.8; % (µM)
 Params.PrxTotal = 92; % total concentration?? FLAG of Prx (µM)
 Params.TrxTotal = 23; % total concentration?? FLAG of Trx (µM)
 
-
-
-% Symbolic Calculation
+%% Symbolic Calculation of Steady State(s)
+% Declare the state variables of the system as symbolic variables
 syms H202 PrxSO PrxSO2 PrxSS TrxSS
 
 % Note that we back out PrxS from total PrxTotal = PrxS + PrxSO + PrxSS + PrxSO2
@@ -25,31 +48,40 @@ PrxS = Params.PrxTotal - PrxSO - PrxSO2 - PrxSS;
 % and similarly we back out TrxSH from total TrxTotal = TrxSH + TrxSS.
 TrxSH = Params.TrxTotal - TrxSS;
 
+% Store system equations symbolically...
 F = [Params.v_sup - Params.k_Alt*H202 - Params.k_Ox*PrxS*H202 - Params.k_Sulf*PrxSO*H202, ...
     Params.k_Ox*PrxS*H202 + Params.k_Srx*PrxSO2 - Params.k_Sulf*PrxSO*H202 - Params.k_Cond*PrxSO, ...
     Params.k_Sulf*PrxSO*H202 - Params.k_Srx*PrxSO2, ...
     Params.k_Cond*PrxSO - Params.k_Red*TrxSH*PrxSS, ...
     Params.k_Red*TrxSH*PrxSS - Params.VAppMax*(TrxSS)/(Params.K_M+TrxSS)];
 
-v = [H202 PrxSO PrxSO2 PrxSS TrxSS] ;
+% ... and state vector
+v = [H202 PrxSO PrxSO2 PrxSS TrxSS];
 
+% Compute Jacobian matrix of system
 tic
 J = jacobian(F,v)
 toc
 
-% Get equilibria:
-x0 = [50; 0.1; 0.1; 0.1; 0.1];
-fun = @(vars)selvaggio(vars,Params);
-EQa = fsolve(fun, x0, Params); %FLAG come back to this there's a way to get it to output jacobian also
+x0 = [0.01; 0.01; 0.001; 0.01; 0.01]; % initial values
+fun = @(vars)selvaggio(vars,Params); % anonymous function for the model equations
+EQa = fsolve(fun, x0, Params); % Note that there's a way to get it to output jacobian here also, obviating need for jacobian computation above
+% NOTE: For option (2), simply replace this computation with an upload of
+% your pre-computed steady state equilibrium vector.
 
-% Perform Linear Stability Analysis using EQa and Jacobian
+%% Perform Linear Stability Analysis using EQa and Jacobian
+% Evaluate jacobian at the steady state equilibrium (EQa)
 JatEQa = subs(J,v,EQa');
 JatEQa = double(JatEQa);
 
-% Get eigenvalues and eigenvectorse
+% Get eigenvalues and eigenvectors
 [evec, eval] = eig(JatEQa)
 
-%% Model
+% Now go analyze!!
+% -----------------------------------------------------------------------
+
+%% Script Functions
+% Model
 function eqs = selvaggio(vars, Params)
     % global Params
     % Key:
