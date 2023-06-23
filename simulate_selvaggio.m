@@ -1,10 +1,12 @@
 %% simulate_selvaggio.m
 % Author: Zach Schlamowitz
 %
-% This function simulates the PTRS following a single bolus addition of
-% H2O2. It is designed for internal use within < plot_ptrs.m >; please see 
-% its sister script < simulate_selvaggio_full_single.m > to run a single
-% isolated simulation.
+% This function simulates the PTRS under a single experimental condition:
+% either following a single bolus addition of H2O2 (using the two-prx 
+% model variant), or under a specified H2O2 supply rate (using the one-prx
+% model variant). It is designed for internal use within < plot_ptrs.m >; 
+% please see its sister script < simulate_selvaggio_full_single.m > to run 
+% a single isolated simulation.
 %
 % SIMULATE_SELVAGGIO
 % Parameters:
@@ -81,8 +83,8 @@ if num_prx == 1
     % Store raw trajectories
     trajectories_raw = sol;
     
-    % Add states  as (e.g., PrxII-SO) proportion of total compartment (e.g., PrxTotal)
-    % recall vars are now [(1)H2O2, (2)PrxSO, (3)PrxSO2, (4)PrxSS, (5)TrxSS, (6)PrxS, (7)TrxS]
+    % Also store states  as (e.g., PrxII-SO) proportion of total compartment (e.g., PrxTotal)
+    % Recall vars are now [(1)H2O2, (2)PrxSO, (3)PrxSO2, (4)PrxSS, (5)TrxSS, (6)PrxS, (7)TrxS]
     trajectories_frac = NaN(size(sol));
     trajectories_frac(:,1) = sol(:,1) ./ init_h2o2;  % H2O2
     trajectories_frac(:,2:4) = sol(:,2:4) ./ Params.PrxTotal; % Prx states
@@ -101,7 +103,6 @@ elseif num_prx == 2
         Params.k_Red = 0.21; % (µM^-1 sec^-1) default: 0.21 (converted from 2.1e5 M^-1 sec^-1) rate constant for reduction of PrxI/II-SS to PrxI/II-SH
         Params.VAppMax = 190; % (µM/sec) default: 190 (converted from 0.19 mM/sec) Max rate of TrxR activity; NOTE that is reported as VMax in Table 2; presumably interchangeable?
         Params.K_M = 1.8; % (µM) default: 1.8; K_M for TrxR activity
-        Params.TrxTotal = 46; % (µM) default: 46; total concentration of Trx (same value in ST6)
         Params.k_Sulf = 3.7e-3; % (µM^-1 sec^-1) default: 3.7e-3 (converted from 3.7e3 M^-1 sec^-1) rate constant for Prx hyperoxidation
         Params.k_Cond = 7.3; % (sec^-1) default: 7.3; rate constant for Prx condensation
     
@@ -113,6 +114,7 @@ elseif num_prx == 2
         Params.k_Cond_II = 1.7; % (sec^-1) default: 1.7 [default from Armindo's email Table with cite] rate constant for PrxII condensation
         
         % From Supplementary Table 6  
+        Params.TrxTotal = 46; % (µM) default: 46; total concentration of Trx (same value in ST6)
         Params.PrxITotal = 110; % (µM) default: 110; total concentration of PrxI 
         Params.PrxIITotal = 32; % (µM) default: 32; total concentration of PrxII
     
@@ -131,7 +133,6 @@ elseif num_prx == 2
         Params.k_Red = 0.21; % (µM^-1 sec^-1) default: 0.21 (converted from 2.1e5 M^-1 sec^-1) rate constant for reduction of PrxI/II-SS to PrxI/II-SH
         Params.VAppMax = 230; % (µM/sec) default: 230 (converted from 0.23 mM/sec) Max rate of TrxR activity; NOTE that is reported as VMax in Table 2; presumably interchangeable?
         Params.K_M = 1.8; % (µM) default: 1.8; K_M for TrxR activity
-        Params.PrxTotal = 92; % total concentration of Prx (µM) (NOTE: total = Params.PrxITotal + Params.PrxIITotal if use ST6 values)
         
         % From Table in Armindo's Email: (formerly from Supplementary Table 6 or Supplement section 3.2.3 (text))
         Params.TrxTotal = 20; % total concentration of Trx (µM) default: 20; updated: was 23 from Supplement Table 6, now from Armindo's email
